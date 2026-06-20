@@ -1,11 +1,11 @@
 name: Build Unsigned iOS IPA
 
 on:
-  workflow_dispatch: # 允許你手動點擊按鈕觸發打包
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: macos-14 # 使用 GitHub 免費提供的 Mac 服務器
+    runs-on: macos-14
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,7 +19,10 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          # 精准锁定原作者项目适配的 Flutter 版本，避免版本冲突
+          flutter-version: '3.24.5'
           channel: 'stable'
+          cache: true
 
       - name: Install dependencies
         run: |
@@ -29,7 +32,8 @@ jobs:
       - name: Build Flutter iOS (No Codesign)
         run: |
           cd simple_live_app
-          flutter build ios --release --no-codesign
+          # 加上 --no-pub 确保不重复拉取依赖，直接进行无签名编译
+          flutter build ios --release --no-codesign --no-pub
 
       - name: Create Payload Directory and Move App
         run: |
