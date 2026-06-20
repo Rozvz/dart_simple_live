@@ -1,0 +1,44 @@
+name: Build Unsigned iOS IPA
+
+on:
+  workflow_dispatch: # 允許你手動點擊按鈕觸發打包
+
+jobs:
+  build:
+    runs-on: macos-14 # 使用 GitHub 免費提供的 Mac 服務器
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: |
+          cd simple_live_app
+          flutter pub get
+
+      - name: Build Flutter iOS (No Codesign)
+        run: |
+          cd simple_live_app
+          flutter build ios --release --no-codesign
+
+      - name: Create Payload Directory and Move App
+        run: |
+          mkdir -p Payload
+          mv simple_live_app/build/ios/iphoneos/Runner.app Payload/
+          zip -r simple_live_live.ipa Payload
+
+      - name: Upload IPA Artifact
+        uses: actions/artifacts@v4
+        with:
+          name: ios-app-unsigned
+          path: simple_live_live.ipa
