@@ -38,7 +38,7 @@ jobs:
           zip -r simple_live_live.ipa Payload
 
       - name: Upload IPA Artifact
-        uses: actions/artifacts@v4
+        uses: actions/upload-artifact@v4
         with:
           name: ios-app-unsigned
           path: simple_live_live.ipa
